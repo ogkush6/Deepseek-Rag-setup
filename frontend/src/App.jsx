@@ -16,7 +16,19 @@ const App = () => {
 
    const fetchDocuments = async () => {
    try {
-      const response = await fetch('http://localhost:8000/documents');
+      //const response = await fetch('http://localhost:8000/documents');
+      const response = await Promise.race([
+         fetch('http://localhost:8000/query', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query: userMessage }),
+         }),
+         new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), 30000)
+         )
+      ]);
       const data = await response.json();
       // If documents is directly an array, use it as is
       // If it's in a documents property, extract it
@@ -81,7 +93,7 @@ const App = () => {
      const data = await response.json();
      console.log('Delete response:', data);
  
-     fetchDocuments(); // Refresh the list
+     fetchDocuments(); //Refresh the list
      setMessages(prev => [...prev, {
        type: 'system',
        content: `Document "${filename}" has been deleted.`
@@ -94,7 +106,7 @@ const App = () => {
      }]);
    }
  };
- 
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 

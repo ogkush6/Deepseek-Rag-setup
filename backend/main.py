@@ -112,8 +112,8 @@ async def query(request: QueryRequest):
     try:
         # Get response from RAG engine
         response = await rag_engine.generate_response(request.query)
-        return {"response":response}
-        
+        return response
+
         # Get relevant sources
         sources = vector_store.get_relevant_sources(request.query)
         
@@ -180,14 +180,18 @@ async def delete_document(filename: str):
             file_path.unlink()
             logger.info(f"File deleted: {file_path}")
             
-            # Re-index documents
-            documents = loader.load_documents()
             vector_store.clear()
-            vector_store.add_documents(documents)
+            # If any documents remain, reindex them
+            documents = loader.load_documents()
+            if documents:
+                vector_store.add_documents(documents)
+            else:
+                # If no documents left, ensure the collection is empty
+                vector_store.collection.delete(where={})
             
             return {
                 "status": "success",
-                "message": "File deleted and documents re-indexed"
+                "message": "File {document} deleted and documents re-indexed"
             }
         else:
             raise HTTPException(
