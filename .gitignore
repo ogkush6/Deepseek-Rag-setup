@@ -1,2 +1,6 @@
 frontend/node_modules/*
-backend/src/_pycache_*
+backend/src/__*
+*.bak
+package-lock.json
+backend/data/*
+*.code-workspace
