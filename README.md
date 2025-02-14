@@ -81,10 +81,25 @@ rag-chat/
 
 ## Installation
 
+### 1. Clone the repository
+```bash
+git clone <url>
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+Install the required Python packages:
+
 ```bash
 pip install -r requirements.txt
 ```
-
 ## Components
 
 ### Backend

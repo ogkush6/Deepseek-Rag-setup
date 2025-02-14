@@ -174,17 +174,29 @@ if __name__ == "__main__":
 
 @app.delete("/document/{filename}")
 async def delete_document(filename: str):
-    # Delete the physical file
-    file_path = DOCUMENT_DIR/ filename
-    if file_path.exists():
-        file_path.unlink()
-        
-    # Clear and rebuild vector store
-    vector_store.clear()  # Add this method to VectorStore class
-    
-    # Reload remaining documents
-    documents = loader.load_documents()
-    if documents:  # Only add if there are documents
-        vector_store.add_documents(documents)
-        
-    return {"message": f"Document {filename} and associated vectors removed"}
+    try:
+        file_path = DOCUMENT_DIR / filename
+        if file_path.exists():
+            file_path.unlink()
+            logger.info(f"File deleted: {file_path}")
+            
+            # Re-index documents
+            documents = loader.load_documents()
+            vector_store.clear()
+            vector_store.add_documents(documents)
+            
+            return {
+                "status": "success",
+                "message": "File deleted and documents re-indexed"
+            }
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="File not found"
+            )
+    except Exception as e:
+        logger.error(f"Error deleting document: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error deleting document"
+        )

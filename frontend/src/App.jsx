@@ -14,16 +14,17 @@ const App = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const fetchDocuments = async () => {
-    try {
+   const fetchDocuments = async () => {
+   try {
       const response = await fetch('http://localhost:8000/documents');
       const data = await response.json();
-      setDocuments(data.documents);
-    } catch (error) {
+      // If documents is directly an array, use it as is
+      // If it's in a documents property, extract it
+      setDocuments(Array.isArray(data) ? data : data.documents || []);
+   } catch (error) {
       console.error('Error fetching documents:', error);
-    }
-  };
-
+   }
+   };
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -62,26 +63,38 @@ const App = () => {
   };
 
   const handleDeleteDocument = async (filename) => {
-    try {
-      const response = await fetch(`http://localhost:8000/document/${filename}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        fetchDocuments(); // Refresh the list
-        setMessages(prev => [...prev, {
-          type: 'system',
-          content: `Document "${filename}" has been deleted.`
-        }]);
-      }
-    } catch (error) {
-      console.error('Error deleting document:', error);
-      setMessages(prev => [...prev, {
-        type: 'error',
-        content: `Failed to delete "${filename}": ${error.message}`
-      }]);
-    }
-  };
-
+   try {
+     console.log(`Attempting to delete: ${filename}`);
+     const response = await fetch(`http://localhost:8000/document/${filename}`, {
+       method: 'DELETE',
+       headers: {
+         'Content-Type': 'application/json'
+       }
+     });
+ 
+     console.log('Delete response status:', response.status);
+ 
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+ 
+     const data = await response.json();
+     console.log('Delete response:', data);
+ 
+     fetchDocuments(); // Refresh the list
+     setMessages(prev => [...prev, {
+       type: 'system',
+       content: `Document "${filename}" has been deleted.`
+     }]);
+   } catch (error) {
+     console.error('Error deleting document:', error);
+     setMessages(prev => [...prev, {
+       type: 'error',
+       content: `Failed to delete "${filename}": ${error.message}`
+     }]);
+   }
+ };
+ 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -91,6 +104,7 @@ const App = () => {
     setIsLoading(true);
 
     try {
+        // Add console.log to see what's happening
       console.log('Sending request to:', 'http://localhost:8000/query');
       const response = await fetch('http://localhost:8000/query', {
         method: 'POST',
@@ -100,6 +114,7 @@ const App = () => {
         body: JSON.stringify({ query: userMessage }),
       });
 
+        // Log the response status
       console.log('Response status:', response.status);
 
       if (!response.ok) {
@@ -115,7 +130,7 @@ const App = () => {
         metrics: data.metrics
       }]);
     } catch (error) {
-      console.error('Error details:', error);
+      console.error('Error details:', error);  // Log the full error
       setMessages(prev => [...prev, {
         type: 'error',
         content: `Error: ${error.message}`
@@ -124,6 +139,10 @@ const App = () => {
       setIsLoading(false);
     }
   };
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto p-4">
@@ -159,11 +178,11 @@ const App = () => {
       <div className="mb-4 p-2 bg-gray-100 rounded">
         <h2 className="font-bold mb-2">Uploaded Documents:</h2>
         <div className="flex flex-wrap gap-2">
-          {documents.map((doc) => (
-            <div key={`doc-${index}-${doc}`} className="flex items-center gap-2 bg-white p-2 rounded shadow">
-              <span>{doc}</span>
+          {documents.map((doc,index) => (
+            <div key={`doc-${index}-${doc.filename}`} className="flex items-center gap-2 bg-white p-2 rounded shadow">
+              <span>{doc.filename}</span>
               <button
-                onClick={() => handleDeleteDocument(doc)}
+                onClick={() => handleDeleteDocument(doc.filename)}
                 className="text-red-500 hover:text-red-700"
               >
                 ×
