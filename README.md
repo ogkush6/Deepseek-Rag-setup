@@ -1,6 +1,12 @@
+# RAG Project
 
-# Project Structure
-# v0.0
+A Retrieval-Augmented Generation (RAG) implementation with both standalone and client-server versions.
+
+## Project Versions
+
+### v0.0 - Standalone Version
+
+```
 rag_project/
 ├── data/
 │   ├── documents/          # Place your documents here
@@ -13,8 +19,11 @@ rag_project/
 │   └── utils.py           # Helper functions
 ├── requirements.txt
 └── main.py
+```
 
-# v0.1
+### v0.1 - Full Stack Version
+
+```
 rag-project/                      # Root project directory
 ├── backend/                     # Backend RAG system
 │   ├── data/
@@ -45,8 +54,11 @@ rag-project/                      # Root project directory
     ├── package.json           # Node.js dependencies
     ├── tailwind.config.js     # Tailwind CSS configuration
     └── postcss.config.js      # PostCSS configuration
+```
 
-# v0.2
+### v0.2 - Streamlined Version
+
+```
 rag-chat/
 ├── backend/
 │   ├── requirements.txt
@@ -65,7 +77,23 @@ rag-chat/
 │       ├── index.css
 │       └── main.jsx
 └── README.md
+```
 
+## Installation
 
-##
+```bash
 pip install -r requirements.txt
+```
+
+## Components
+
+### Backend
+- Document loading and processing
+- Vector embedding generation
+- RAG implementation
+- FastAPI server (v0.1+)
+
+### Frontend (v0.1+)
+- React-based user interface
+- Chatbot component
+- Tailwind CSS styling
