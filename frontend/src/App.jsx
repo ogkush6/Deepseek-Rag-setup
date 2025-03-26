@@ -138,7 +138,7 @@ const App = () => {
 
       setMessages(prev => [...prev, {
         type: 'bot',
-        content: data.content,
+        content: data.response,
         metrics: data.metrics
       }]);
     } catch (error) {

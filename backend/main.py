@@ -11,6 +11,8 @@ from src.document_loader import DocumentLoader
 from src.embeddings import VectorStore
 from src.rag_engine import RAGEngine
 
+from pydantic import BaseModel
+from typing import Optional, Dict
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -46,8 +48,27 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     response: str
-    sources: Optional[list] = None
+    metrics: Optional[Dict] = None
 
+@app.post("/query", response_model=QueryResponse)
+async def query(request: QueryRequest):
+    try:
+        # Get response from RAG engine
+        response_data = await rag_engine.generate_response(request.query)
+        
+        # Transform the response to match the QueryResponse model
+        return {
+            'response': response_data['content'],
+            'metrics': response_data.get('metrics', {})
+        }
+
+    except Exception as e:
+        logger.error(f"Error processing query: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing your query: {str(e)}"
+        )
+    
 @app.get("/")
 async def read_root():
     return {
@@ -105,27 +126,6 @@ async def upload_file(file: UploadFile):
         raise HTTPException(
             status_code=500,
             detail=str(e)
-        )
-
-@app.post("/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
-    try:
-        # Get response from RAG engine
-        response = await rag_engine.generate_response(request.query)
-        return response
-
-        # Get relevant sources
-        sources = vector_store.get_relevant_sources(request.query)
-        
-        return QueryResponse(
-            response=response,
-            sources=sources
-        )
-    except Exception as e:
-        logger.error(f"Error processing query: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Error processing your query"
         )
 
 

@@ -1,0 +1,68 @@
+Node.js version 12.x is quite old and no longer supported. This is likely the root cause of your issue. Here's a comprehensive guide to update Node.js:
+
+### For Windows:
+1. Uninstall existing Node.js
+- Go to Control Panel > Programs and Features
+- Uninstall Node.js
+
+2. Download and Install Node.js
+- Go to https://nodejs.org/
+- Download the LTS (Long Term Support) version (currently 20.x)
+- Run the installer
+- Make sure to check the box that says "Automatically install the necessary tools"
+
+### For macOS:
+1. Install Homebrew (if not already installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. Install Node.js:
+```bash
+brew install node@20
+```
+
+### For Linux (Ubuntu/Debian):
+```bash
+# Remove old Node.js
+sudo apt remove nodejs
+
+# Install Node Version Manager (nvm)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Restart terminal or run:
+source ~/.bashrc
+
+# Install latest LTS Node.js
+nvm install --lts
+nvm use --lts
+```
+
+### Verify Installation
+After installation, verify the versions:
+```bash
+node --version  # Should show v20.x.x
+npm --version   # Should show a recent version
+```
+
+### For the Project
+Once Node.js is updated:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Additional Troubleshooting
+If you encounter any issues:
+1. Clear npm cache:
+```bash
+npm cache clean --force
+```
+
+2. Remove and reinstall node_modules:
+```bash
+rm -rf node_modules
+rm package-lock.json
+npm install
+```

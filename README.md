@@ -60,3 +60,15 @@ pip install -r requirements.txt
 - React-based user interface
 - Chatbot component
 - Tailwind CSS styling
+
+## Start Model
+ollama serve
+
+## Start the frontend
+cd frontend
+npm install  # If you haven't installed dependencies yet
+npm run dev
+
+## Start the backend
+cd backend
+python main.py

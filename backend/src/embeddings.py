@@ -36,3 +36,26 @@ class VectorStore:
     def clear(self):
         """Clear all documents from the collection"""
         self.collection.delete(where={})  # Delete all documents
+    
+    def get_relevant_sources(self, query: str, k: int = 3) -> List[Dict]:
+        """
+        Retrieve relevant sources for a given query
+        
+        Args:
+            query (str): The query to find relevant sources for
+            k (int): Number of sources to retrieve
+        
+        Returns:
+            List of dictionaries containing source information
+        """
+        results = self.search(query, k)
+        
+        sources = []
+        if results['metadatas'] and results['metadatas'][0]:
+            for metadata in results['metadatas'][0]:
+                sources.append({
+                    'source': metadata.get('source', 'Unknown'),
+                    'type': metadata.get('type', 'Unknown')
+                })
+        
+        return sources

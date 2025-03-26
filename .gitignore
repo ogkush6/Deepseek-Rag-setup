@@ -1,5 +1,5 @@
 frontend/node_modules/*
-backend/__*
+*__pycache__
 backend/src/__*
 *.bak
 package-lock.json

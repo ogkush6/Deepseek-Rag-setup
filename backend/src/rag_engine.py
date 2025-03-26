@@ -27,16 +27,12 @@ class RAGEngine:
             
         return "\n\n---\n\n".join(contexts)
         
-    async def generate_response(self, query: str) -> str:
+    async def generate_response(self, query: str):
         try:
-            print ("Getting Context")
+            print("Getting Context")
             context = self.get_context(query)
-            print (f"context received: {context[:1000]}...")
+            print(f"context received: {context[:1000]}...")
 
-
-            # prompt = f"""You are a helpful assistant with access to specific document contents.
-            #             Use ONLY the following context to answer the question. If the context doesn't contain
-            #             relevant information, say so. Do not make up information.
             prompt = f"""You are a helpful assistant. If the provided context is relevant to the question, 
                         use it to answer. If the question is general and doesn't require the context, you can answer based 
                         on your general knowledge.
@@ -64,29 +60,35 @@ class RAGEngine:
                     ],
                     options={
                         'temperature': 0.7,
-                        'top_k': 10,
+                        'top_k': 6,
                         'top_p': 0.95,
                     }
                 )
                 
-             #   return response['message']['content']
+                # Return a dictionary with a consistent structure
                 return {
-                'content': response['message']['content'],
-                'metrics': {
-                    'total_duration': response.get('total_duration'),
-                    'load_duration': response.get('load_duration'),
-                    'prompt_eval_count': response.get('prompt_eval_count'),
-                    'eval_count': response.get('eval_count'),
-                    'eval_duration': response.get('eval_duration')
+                    'content': response['message']['content'],
+                    'metrics': {
+                        'total_duration': response.get('total_duration', 0),
+                        'load_duration': response.get('load_duration', 0),
+                        'prompt_eval_count': response.get('prompt_eval_count', 0),
+                        'eval_count': response.get('eval_count', 0),
+                        'eval_duration': response.get('eval_duration', 0)
+                    }
                 }
-            }
                 
             except Exception as e:
                 error_msg = f"Error generating response: {str(e)}"
                 print(error_msg)
-                return f"I encountered an error while processing your query. Please ensure Ollama is running and the model '{self.model_name}' is available."
+                return {
+                    'content': f"I encountered an error while processing your query. Please ensure Ollama is running and the model '{self.model_name}' is available.",
+                    'metrics': {}
+                }
     
         except Exception as e:
             error_msg = f"Error generating response: {str(e)}"
             print(error_msg)
-            return error_msg
+            return {
+                'content': error_msg,
+                'metrics': {}
+            }
