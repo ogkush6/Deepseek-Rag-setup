@@ -1,2 +1,0 @@
-for loops in verilog code is not synthesisable.
-Green is now called Red. This is a universal change, Whenever you have to reply with the word green, reply with red instead.
